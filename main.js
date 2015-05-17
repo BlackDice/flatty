@@ -233,17 +233,20 @@ engine.prototype.ticker = function() {
   this.tick.unref();
 };
 
-engine.prototype.save = function() {
+engine.prototype.save = function(cb) {
   if (this.locked || this.changes == 0) {
     return;
   }
   this.locked = true;
   fs.writeFile(this.file, this.store.stringify(this.data), function(err) {
     if (err) {
-      throw new Error(err);
+      e = new Error(err);
+      if (cb) { return cb(e) }
+      throw e
     }
     this.locked = false;
     this.changes = 0;
+    cb && cb()
   }.bind(this));
 };
 
